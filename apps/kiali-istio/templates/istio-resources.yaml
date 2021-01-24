@@ -1,0 +1,42 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: kiali-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "kiali.kube"
+# Uncomment below to enable HTTPS
+#      tls:
+#        httpsRedirect: true
+#    - port:
+#        number: 443
+#        name: https
+#        protocol: HTTPS
+#      hosts:
+#        - "kiali.kube"
+#      tls:
+#        mode: PASSTHROUGH
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: kiali-server
+spec:
+  hosts:
+  - kiali.kube
+  gateways:
+    - kiali-gateway
+  http:
+    - route:
+        - destination:
+            host: kiali.istio-system.svc.cluster.local
+            port:
+              number: 20001
